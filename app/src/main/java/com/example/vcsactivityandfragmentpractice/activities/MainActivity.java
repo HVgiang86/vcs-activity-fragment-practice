@@ -12,7 +12,7 @@ import com.example.vcsactivityandfragmentpractice.R;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
-    private int mTextViewColor = Color.argb(255, 255, 0, 19);
+    private int mTextViewColor;
     private TextView mTextView;
     private final String COLOR_KEY = "color_key";
 
@@ -23,11 +23,10 @@ public class MainActivity extends AppCompatActivity {
 
         mTextView = findViewById(R.id.tv_welcome_vcs);
 
-
-        mTextView.setTextColor(mTextViewColor);
-
-
-
+        if (savedInstanceState != null) {
+            mTextViewColor = savedInstanceState.getInt(COLOR_KEY);
+            mTextView.setTextColor(mTextViewColor);
+        }
 
     }
 
@@ -46,5 +45,6 @@ public class MainActivity extends AppCompatActivity {
         mTextViewColor = Color.argb(255, random.nextInt(256),
                 random.nextInt(256),
                 random.nextInt(256));
+        mTextView.setTextColor(mTextViewColor);
     }
 }
