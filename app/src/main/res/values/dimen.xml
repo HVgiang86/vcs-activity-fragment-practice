@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <item name="nav_header_height" type="dimen">160dp</item>
+
+</resources>
