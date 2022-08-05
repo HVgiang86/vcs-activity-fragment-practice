@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-  
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/show_device_information"
+            android:title="@string/device_information"
+            android:icon="@drawable/ic_info"
+            />
+        <item
+            android:id="@+id/search_for_application"
+            android:title="@string/search_for_an_application"
+            android:icon="@drawable/ic_search"
+            />
+    </group>
+
 </menu>
