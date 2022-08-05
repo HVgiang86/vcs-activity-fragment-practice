@@ -47,9 +47,11 @@ public class DeviceInfoFragment extends Fragment {
 
         TextView deviceModelTextView = rootView.findViewById(R.id.device_name_tv);
         TextView osVersionTextView = rootView.findViewById(R.id.os_version_tv);
+        TextView deviceTypeTextView = rootView.findViewById(R.id.device_type_tv);
 
         osVersionTextView.setText(System.getProperty("os.version"));
-        deviceModelTextView.setText(Build.MODEL);
+        deviceModelTextView.setText(android.os.Build.MODEL);
+        deviceTypeTextView.setText(android.os.Build.PRODUCT);
 
         return rootView;
     }

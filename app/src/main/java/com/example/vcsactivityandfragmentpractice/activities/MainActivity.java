@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -28,6 +30,8 @@ public class MainActivity extends AppCompatActivity{
     private long mBackPressedTime;
     private DrawerLayout mDrawer;
     private ActionBarDrawerToggle mToggle;
+    private final String DEVICE_INFORMATION_FRAGMENT_TAG = "Device_Information_Fragment";
+    private final String SEARCH_FOR_APPLICATION_FRAGMENT_TAG = "Search_For_Application";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,7 +113,7 @@ public class MainActivity extends AppCompatActivity{
         mTextView.setTextColor(mTextViewColor);
     }
 
-    /*//handle back button press event
+    //handle back button press event
     @Override
     public void onBackPressed() {
 
@@ -119,11 +123,20 @@ public class MainActivity extends AppCompatActivity{
             return;
         }
         else {
-            Toast.makeText(this, "Nhấn nút back lần nữa để thoát ứng dụng!", Toast.LENGTH_SHORT).show();
+            //update last Back pressed time
+            mBackPressedTime = System.currentTimeMillis();
+
+            //check fragments displaying
+            //if fragments are now displayed, do not show Toast. Just remove fragments from BackStack
+            DeviceInfoFragment deviceInfoFragment = (DeviceInfoFragment) getSupportFragmentManager().findFragmentByTag(DEVICE_INFORMATION_FRAGMENT_TAG);
+            if (deviceInfoFragment != null && deviceInfoFragment.isVisible()) {
+                super.onBackPressed();
+            }
+            else {
+                Toast.makeText(this, "Nhấn nút back lần nữa để thoát ứng dụng!", Toast.LENGTH_SHORT).show();
+            }
         }
-        mBackPressedTime = System.currentTimeMillis();
-        super.onBackPressed();
-    }*/
+    }
 
 
 
@@ -131,7 +144,7 @@ public class MainActivity extends AppCompatActivity{
     public void showDeviceInformation() {
         DeviceInfoFragment deviceInfoFragment = DeviceInfoFragment.newInstance();
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, deviceInfoFragment)
+                .replace(R.id.fragment_container, deviceInfoFragment,DEVICE_INFORMATION_FRAGMENT_TAG)
                 .addToBackStack(null)
                 .commit();
 
