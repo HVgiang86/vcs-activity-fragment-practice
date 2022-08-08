@@ -6,8 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -17,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.vcsactivityandfragmentpractice.R;
+import com.example.vcsactivityandfragmentpractice.fragments.ApplicationSearchFragment;
 import com.example.vcsactivityandfragmentpractice.fragments.DeviceInfoFragment;
 import com.google.android.material.navigation.NavigationView;
 
@@ -65,6 +64,7 @@ public class MainActivity extends AppCompatActivity{
         NavigationView navigationView = findViewById(R.id.navigation_view);
 
         if (navigationView != null) {
+
             //Handle when navigation drawer menu item selected
             MenuItem showDeviceInfoAction = navigationView.getMenu().findItem(R.id.show_device_information);
             MenuItem searchForApplicationAction = navigationView.getMenu().findItem(R.id.search_for_application);
@@ -93,10 +93,12 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
+
     //save color to InstanceState when change device configuration
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+
         outState.putInt(COLOR_KEY, mTextViewColor);
     }
 
@@ -117,28 +119,29 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public void onBackPressed() {
 
-        //if time between two back press faster than 2 seconds, exit application
-        if (mBackPressedTime + TIME_INTERVAL > System.currentTimeMillis()) {
+        //check fragments displaying
+        //if fragments are now displayed, do not show Toast or exit Application. Just remove fragments from BackStack
+        DeviceInfoFragment deviceInfoFragment = (DeviceInfoFragment) getSupportFragmentManager()
+                                                                    .findFragmentByTag(DEVICE_INFORMATION_FRAGMENT_TAG);
+        ApplicationSearchFragment applicationSearchFragment = (ApplicationSearchFragment) getSupportFragmentManager()
+                                                                    .findFragmentByTag(SEARCH_FOR_APPLICATION_FRAGMENT_TAG);
+        if ((deviceInfoFragment != null && deviceInfoFragment.isVisible()) ||
+                (applicationSearchFragment != null && applicationSearchFragment.isVisible())) {
             super.onBackPressed();
-            return;
         }
         else {
-            //update last Back pressed time
-            mBackPressedTime = System.currentTimeMillis();
 
-            //check fragments displaying
-            //if fragments are now displayed, do not show Toast. Just remove fragments from BackStack
-            DeviceInfoFragment deviceInfoFragment = (DeviceInfoFragment) getSupportFragmentManager().findFragmentByTag(DEVICE_INFORMATION_FRAGMENT_TAG);
-            if (deviceInfoFragment != null && deviceInfoFragment.isVisible()) {
+            //if time between two back press faster than 2 seconds, exit application
+            if (mBackPressedTime + TIME_INTERVAL > System.currentTimeMillis()) {
                 super.onBackPressed();
             }
             else {
+                //update last Back pressed time
+                mBackPressedTime = System.currentTimeMillis();
                 Toast.makeText(this, "Nhấn nút back lần nữa để thoát ứng dụng!", Toast.LENGTH_SHORT).show();
             }
         }
     }
-
-
 
     //Show device information with a fragment
     public void showDeviceInformation() {
@@ -152,7 +155,11 @@ public class MainActivity extends AppCompatActivity{
 
     //Show Application Searching UI with a fragment
     public void searchForAnApplication() {
-
+        ApplicationSearchFragment applicationSearchFragment = ApplicationSearchFragment.newInstance();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, applicationSearchFragment,SEARCH_FOR_APPLICATION_FRAGMENT_TAG)
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override

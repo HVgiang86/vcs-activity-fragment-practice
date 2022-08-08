@@ -13,4 +13,6 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="device_type">Product</string>
+    <string name="search_for_an_application_label">Search For An Application</string>
+    <string name="application_search_hint">Camera</string>
 </resources>

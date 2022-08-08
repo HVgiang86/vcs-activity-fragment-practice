@@ -1,6 +1,5 @@
 package com.example.vcsactivityandfragmentpractice.fragments;
 
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -28,15 +27,12 @@ public class DeviceInfoFragment extends Fragment {
      * Use this factory method to create a new instance of
      */
     public static DeviceInfoFragment newInstance() {
-        DeviceInfoFragment fragment = new DeviceInfoFragment();
-        return fragment;
+        return new DeviceInfoFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /*if (getArguments() != null) {
-        }*/
     }
 
     @Override
