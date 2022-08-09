@@ -8,16 +8,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.vcsactivityandfragmentpractice.R;
-import com.example.vcsactivityandfragmentpractice.models.InstalledApplication;
+import com.example.vcsactivityandfragmentpractice.fragments.ApplicationSearchFragment;
 
 import java.util.ArrayList;
 
 public class ApplicationListAdapter extends BaseAdapter {
-    private ArrayList<InstalledApplication> appList;
-    Activity activity;
+    private ArrayList<ApplicationSearchFragment.InstalledApplication> appList;
+    private Activity activity;
+    private boolean isAdapterForRecentSearch = false;
 
-    public ApplicationListAdapter(Activity activity, ArrayList<InstalledApplication> appList) {
+    public ApplicationListAdapter(Activity activity, ArrayList<ApplicationSearchFragment.InstalledApplication> appList, boolean isAdapterForRecentSearch) {
         this.appList = appList;
+        this.activity = activity;
+        this.isAdapterForRecentSearch = isAdapterForRecentSearch;
+    }
+
+    public ApplicationListAdapter(Activity activity) {
         this.activity = activity;
     }
 
@@ -42,6 +48,12 @@ public class ApplicationListAdapter extends BaseAdapter {
 
         ImageView appIconImageView = convertView.findViewById(R.id.app_icon_iv);
         TextView appNameTextView = convertView.findViewById(R.id.app_name_tv);
+        TextView recentSearchLabel = convertView.findViewById(R.id.recent_search_label);
+
+        if (isAdapterForRecentSearch)
+            recentSearchLabel.setVisibility(View.VISIBLE);
+        else
+            recentSearchLabel.setVisibility(View.GONE);
 
         appNameTextView.setText(appList.get(i).getAppName());
         appIconImageView.setImageDrawable(appList.get(i).getIcon());
@@ -49,5 +61,11 @@ public class ApplicationListAdapter extends BaseAdapter {
         return convertView;
     }
 
+    public void setAppList(ArrayList<ApplicationSearchFragment.InstalledApplication> appList) {
+        this.appList = appList;
+    }
 
+    public void setAdapterForRecentSearch(boolean adapterForRecentSearch) {
+        isAdapterForRecentSearch = adapterForRecentSearch;
+    }
 }

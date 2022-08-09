@@ -15,4 +15,5 @@
     <string name="device_type">Product</string>
     <string name="search_for_an_application_label">Search For An Application</string>
     <string name="application_search_hint">Camera</string>
+    <string name="recent_search_label">recent</string>
 </resources>
