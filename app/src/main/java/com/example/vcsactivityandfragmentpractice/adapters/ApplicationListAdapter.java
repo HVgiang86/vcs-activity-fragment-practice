@@ -13,18 +13,14 @@ import com.example.vcsactivityandfragmentpractice.fragments.ApplicationSearchFra
 import java.util.ArrayList;
 
 public class ApplicationListAdapter extends BaseAdapter {
-    private ArrayList<ApplicationSearchFragment.InstalledApplication> appList;
-    private Activity activity;
-    private boolean isAdapterForRecentSearch = false;
+    private final ArrayList<ApplicationSearchFragment.InstalledApplication> appList;
+    private final Activity activity;
+    private final boolean isAdapterForRecentSearch;
 
     public ApplicationListAdapter(Activity activity, ArrayList<ApplicationSearchFragment.InstalledApplication> appList, boolean isAdapterForRecentSearch) {
         this.appList = appList;
         this.activity = activity;
         this.isAdapterForRecentSearch = isAdapterForRecentSearch;
-    }
-
-    public ApplicationListAdapter(Activity activity) {
-        this.activity = activity;
     }
 
     @Override
@@ -59,13 +55,5 @@ public class ApplicationListAdapter extends BaseAdapter {
         appIconImageView.setImageDrawable(appList.get(i).getIcon());
 
         return convertView;
-    }
-
-    public void setAppList(ArrayList<ApplicationSearchFragment.InstalledApplication> appList) {
-        this.appList = appList;
-    }
-
-    public void setAdapterForRecentSearch(boolean adapterForRecentSearch) {
-        isAdapterForRecentSearch = adapterForRecentSearch;
     }
 }

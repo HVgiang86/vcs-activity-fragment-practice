@@ -125,6 +125,7 @@ public class MainActivity extends AppCompatActivity{
                                                                     .findFragmentByTag(DEVICE_INFORMATION_FRAGMENT_TAG);
         ApplicationSearchFragment applicationSearchFragment = (ApplicationSearchFragment) getSupportFragmentManager()
                                                                     .findFragmentByTag(SEARCH_FOR_APPLICATION_FRAGMENT_TAG);
+
         if ((deviceInfoFragment != null && deviceInfoFragment.isVisible()) ||
                 (applicationSearchFragment != null && applicationSearchFragment.isVisible())) {
             super.onBackPressed();
@@ -132,6 +133,7 @@ public class MainActivity extends AppCompatActivity{
         else {
 
             //if time between two back press faster than 2 seconds, exit application
+            //else, notify user to press back button again
             if (mBackPressedTime + TIME_INTERVAL > System.currentTimeMillis()) {
                 super.onBackPressed();
             }
@@ -140,6 +142,7 @@ public class MainActivity extends AppCompatActivity{
                 mBackPressedTime = System.currentTimeMillis();
                 Toast.makeText(this, "Nhấn nút back lần nữa để thoát ứng dụng!", Toast.LENGTH_SHORT).show();
             }
+
         }
     }
 

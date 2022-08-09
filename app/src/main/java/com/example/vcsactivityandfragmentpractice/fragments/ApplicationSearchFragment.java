@@ -1,7 +1,8 @@
 package com.example.vcsactivityandfragmentpractice.fragments;
 
 import android.content.Intent;
-import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
@@ -28,9 +29,8 @@ import java.util.List;
  */
 public class ApplicationSearchFragment extends Fragment {
     private ListView resultListView;
-    private final ArrayList<InstalledApplication> allAppList = new ArrayList<>();
-    private ArrayList<InstalledApplication> recentSearchList = new ArrayList<>();
-    private ApplicationListAdapter adapter = new ApplicationListAdapter(getActivity());
+    private ArrayList<InstalledApplication> allAppList;
+    private ArrayList<InstalledApplication> recentSearchList;
 
     //Data Model for installed application
     public static class InstalledApplication {
@@ -67,6 +67,7 @@ public class ApplicationSearchFragment extends Fragment {
         // Required empty public constructor
     }
 
+
     /**
      * Use this factory method to create a new instance of
      */
@@ -78,18 +79,36 @@ public class ApplicationSearchFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Init array lists
+        recentSearchList = new ArrayList<>();
+        allAppList = new ArrayList<>();
+
         //Create List of all installed application
-        List<PackageInfo> packs = getContext().getPackageManager().getInstalledPackages(0);
+        //this method does not work correctly on Android 11 (API 30) and higher
+        PackageManager pm = getContext().getPackageManager();
+
+        /*List<PackageInfo> packs = pm.getInstalledPackages(PackageManager.GET_META_DATA);
         for (PackageInfo p : packs) {
-            if (p.versionName != null) {
                 InstalledApplication app = new InstalledApplication();
-                String name = p.applicationInfo.loadLabel(getContext().getPackageManager()).toString();
+                String name = p.applicationInfo.loadLabel(pm).toString();
                 app.setAppName(name);
                 app.setPackageName(p.applicationInfo.packageName);
-                app.setIcon(p.applicationInfo.loadIcon(getContext().getPackageManager()));
+                app.setIcon(p.applicationInfo.loadIcon(pm));
                 allAppList.add(app);
-            }
+                Log.d(TAG,app.getAppName());
+        }*/
+
+        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> pkgAppsList = getContext().getPackageManager().queryIntentActivities( mainIntent, 0);
+        for (int i = 0; i < pkgAppsList.size(); ++i) {
+            InstalledApplication app = new InstalledApplication();
+            app.setAppName(pkgAppsList.get(i).loadLabel(pm).toString());
+            app.setPackageName(pkgAppsList.get(i).activityInfo.packageName);
+            app.setIcon(pkgAppsList.get(i).loadIcon(pm));
+            allAppList.add(app);
         }
+
     }
 
     @Override
@@ -113,9 +132,20 @@ public class ApplicationSearchFragment extends Fragment {
                 if (searchView.getQuery().toString().length() == 0)
                     showRecentSearch();
                 else
-                    showResult(newText);
+                    showResult(searchView.getQuery().toString());
 
                 return true;
+            }
+        });
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                if (searchView.getQuery().toString().length() == 0) {
+                    showRecentSearch();
+                    return true;
+                }
+                return false;
             }
         });
 
@@ -125,14 +155,13 @@ public class ApplicationSearchFragment extends Fragment {
 
 
     private ArrayList<InstalledApplication> searchForApp(String query) {
-        query = query.trim();
 
+        query = query.trim();
         ArrayList<InstalledApplication> result = new ArrayList<>();
         Intent canLaunchChecking;
         for (InstalledApplication app : allAppList) {
             //Search for Application name contains query
             if (app.getAppName().toLowerCase().contains(query.toLowerCase())) {
-
                 //check that package is launchable or not. If can launch, add to result list
                 canLaunchChecking = getContext().getPackageManager().getLaunchIntentForPackage(app.getPackageName());
                 if (canLaunchChecking != null) {
@@ -144,20 +173,19 @@ public class ApplicationSearchFragment extends Fragment {
     }
 
     public void showResult(String query) {
-        ArrayList<InstalledApplication> result = searchForApp(query);
+        ArrayList<InstalledApplication> resultList = searchForApp(query);
 
-        if (result.size() != 0) {
+        if (resultList.size() != 0) {
+            ApplicationListAdapter adapter = new ApplicationListAdapter(getActivity(), resultList, false);
             resultListView.setAdapter(adapter);
-            adapter.setAppList(result);
-            adapter.setAdapterForRecentSearch(false);
-            adapter.notifyDataSetChanged();
-
             resultListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int i, long id) {
-                    Intent launchIntent = getContext().getPackageManager().getLaunchIntentForPackage(result.get(i).getPackageName());
+                    Intent launchIntent = getContext().getPackageManager().getLaunchIntentForPackage(resultList.get(i).getPackageName());
                     if (launchIntent != null) {
-                        recentSearchList.add(result.get(i));
+                        if (!recentSearchList.contains(resultList.get(i)))
+                            recentSearchList.add(resultList.get(i));
+
                         startActivity(launchIntent);
                     } else {
                         Toast.makeText(getContext(), "There is no package available in android", Toast.LENGTH_LONG).show();
@@ -168,23 +196,26 @@ public class ApplicationSearchFragment extends Fragment {
     }
 
     public void showRecentSearch() {
-        resultListView.setAdapter(adapter);
-        adapter.setAppList(recentSearchList);
-        adapter.setAdapterForRecentSearch(true);
-        adapter.notifyDataSetChanged();
-        adapter.notifyDataSetChanged();
-        resultListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int i, long id) {
-                Intent launchIntent = getContext().getPackageManager().getLaunchIntentForPackage(recentSearchList.get(i).getPackageName());
-                if (launchIntent != null) {
-                    recentSearchList.add(recentSearchList.get(i));
-                    startActivity(launchIntent);
-                } else {
-                    Toast.makeText(getContext(), "There is no package available in android", Toast.LENGTH_LONG).show();
+
+        if (recentSearchList.size() != 0) {
+            ApplicationListAdapter adapter = new ApplicationListAdapter(getActivity(), recentSearchList, true);
+            resultListView.setAdapter(adapter);
+            resultListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int i, long id) {
+                    Intent launchIntent = getContext().getPackageManager().getLaunchIntentForPackage(recentSearchList.get(i).getPackageName());
+                    if (launchIntent != null) {
+                        startActivity(launchIntent);
+                    } else {
+                        Toast.makeText(getContext(), "There is no package available in android", Toast.LENGTH_LONG).show();
+                    }
                 }
-            }
-        });
+            });
+        }
+        else {
+            resultListView.setAdapter(null);
+        }
+
     }
 
 }
