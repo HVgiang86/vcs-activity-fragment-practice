@@ -8,15 +8,19 @@
     android:background="@color/white"
     tools:context=".fragments.ApplicationSearchFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="wrap_content"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/tool_bar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/search_for_an_application_label"
-        android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
-        android:layout_margin="16dp"
-        android:textStyle="bold"
-        />
+        android:minHeight="?attr/actionBarSize"
+        android:background="@color/design_default_color_primary"
+        app:titleTextColor="@color/white"
+        app:title="@string/application_search_toolbar_title"
+        >
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <!-- TODO: Update blank fragment layout -->
 
     <androidx.appcompat.widget.SearchView
         android:id="@+id/search_view"

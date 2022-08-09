@@ -87,17 +87,6 @@ public class ApplicationSearchFragment extends Fragment {
         //this method does not work correctly on Android 11 (API 30) and higher
         PackageManager pm = getContext().getPackageManager();
 
-        /*List<PackageInfo> packs = pm.getInstalledPackages(PackageManager.GET_META_DATA);
-        for (PackageInfo p : packs) {
-                InstalledApplication app = new InstalledApplication();
-                String name = p.applicationInfo.loadLabel(pm).toString();
-                app.setAppName(name);
-                app.setPackageName(p.applicationInfo.packageName);
-                app.setIcon(p.applicationInfo.loadIcon(pm));
-                allAppList.add(app);
-                Log.d(TAG,app.getAppName());
-        }*/
-
         Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> pkgAppsList = getContext().getPackageManager().queryIntentActivities( mainIntent, 0);
@@ -192,6 +181,9 @@ public class ApplicationSearchFragment extends Fragment {
                     }
                 }
             });
+        }
+        else {
+            showRecentSearch();
         }
     }
 

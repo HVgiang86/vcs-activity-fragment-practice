@@ -2,7 +2,7 @@
     <string name="app_name">VCS Activity And Fragment Practice</string>
     <string name="viettel_cyber_security">Viettel Cyber Security</string>
     <string name="author_title">Sinh Viên Thực Tập Dev Core</string>
-    <string name="author_name">Mr. A</string>
+    <string name="author_name">Hoàng Văn Giang</string>
     <string name="device_information">Device Information</string>
     <string name="search_for_an_application">Search For An Application</string>
     <!-- TODO: Remove or change this placeholder text -->
@@ -16,4 +16,7 @@
     <string name="search_for_an_application_label">Search For An Application</string>
     <string name="application_search_hint">Camera</string>
     <string name="recent_search_label">recent</string>
+    <string name="main_activity_toolbar_title">Activity And Fragment</string>
+    <string name="application_search_toolbar_title">Search for an application</string>
+    <string name="device_info_toolbar_title">Device Information</string>
 </resources>

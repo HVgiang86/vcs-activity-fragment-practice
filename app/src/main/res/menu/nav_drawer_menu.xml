@@ -5,11 +5,13 @@
             android:id="@+id/show_device_information"
             android:title="@string/device_information"
             android:icon="@drawable/ic_info"
+            android:onClick="showDeviceInfo"
             />
         <item
             android:id="@+id/search_for_application"
             android:title="@string/search_for_an_application"
             android:icon="@drawable/ic_search"
+            android:onClick="searchForApplication"
             />
     </group>
 

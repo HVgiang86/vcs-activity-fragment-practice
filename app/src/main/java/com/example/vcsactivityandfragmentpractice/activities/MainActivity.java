@@ -17,7 +17,6 @@ import android.widget.Toast;
 import com.example.vcsactivityandfragmentpractice.R;
 import com.example.vcsactivityandfragmentpractice.fragments.ApplicationSearchFragment;
 import com.example.vcsactivityandfragmentpractice.fragments.DeviceInfoFragment;
-import com.google.android.material.navigation.NavigationView;
 
 import java.util.Random;
 
@@ -53,46 +52,29 @@ public class MainActivity extends AppCompatActivity{
         //setup navigation drawer
         mDrawer = findViewById(R.id.drawer_layout);
         mToggle = new ActionBarDrawerToggle(this, mDrawer, toolbar,
-                                                                            R.string.navigation_drawer_open,
-                                                                            R.string.navigation_drawer_close);
+                                                        R.string.navigation_drawer_open,
+                                                        R.string.navigation_drawer_close);
 
         if (mDrawer != null) {
             mDrawer.addDrawerListener(mToggle);
         }
         mToggle.syncState();
 
-        NavigationView navigationView = findViewById(R.id.navigation_view);
-
-        if (navigationView != null) {
-
-            //Handle when navigation drawer menu item selected
-            MenuItem showDeviceInfoAction = navigationView.getMenu().findItem(R.id.show_device_information);
-            MenuItem searchForApplicationAction = navigationView.getMenu().findItem(R.id.search_for_application);
-
-            showDeviceInfoAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    mDrawer.closeDrawer(GravityCompat.START);
-                    Toast.makeText(getApplicationContext(), "Device Info Action Selected!",Toast.LENGTH_SHORT).show();
-                    showDeviceInformation();
-                    return true;
-                }
-            });
-
-            searchForApplicationAction.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    mDrawer.closeDrawer(GravityCompat.START);
-                    Toast.makeText(getApplicationContext(), "Search For Application Action Selected!",Toast.LENGTH_SHORT).show();
-                    searchForAnApplication();
-                    return true;
-                }
-            });
-        }
-
     }
 
+    //Handle event that show device information action has been chosen
+    public void showDeviceInfo(MenuItem item) {
+        mDrawer.closeDrawer(GravityCompat.START);
+        Toast.makeText(getApplicationContext(), "Device Info Action Selected!",Toast.LENGTH_SHORT).show();
+        showDeviceInformation();
+    }
 
+    //Handle event that application search action has been chosen
+    public void searchForApplication(MenuItem item) {
+        mDrawer.closeDrawer(GravityCompat.START);
+        Toast.makeText(getApplicationContext(), "Search For Application Action Selected!",Toast.LENGTH_SHORT).show();
+        searchForAnApplication();
+    }
 
     //save color to InstanceState when change device configuration
     @Override
