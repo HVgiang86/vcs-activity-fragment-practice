@@ -19,7 +19,6 @@
         app:titleTextColor="@color/white"
         app:title="@string/device_info_toolbar_title"
         >
-
     </androidx.appcompat.widget.Toolbar>
 
     <TextView

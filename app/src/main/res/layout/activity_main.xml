@@ -29,7 +29,6 @@
             app:titleTextColor="@color/white"
             app:title="@string/main_activity_toolbar_title"
             >
-
         </androidx.appcompat.widget.Toolbar>
         <TextView
             android:id="@+id/tv_welcome_vcs"

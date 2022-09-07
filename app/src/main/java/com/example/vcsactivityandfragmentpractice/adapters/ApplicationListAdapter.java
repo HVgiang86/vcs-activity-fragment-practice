@@ -1,59 +1,118 @@
 package com.example.vcsactivityandfragmentpractice.adapters;
 
-import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vcsactivityandfragmentpractice.R;
 import com.example.vcsactivityandfragmentpractice.fragments.ApplicationSearchFragment;
 
 import java.util.ArrayList;
 
-public class ApplicationListAdapter extends BaseAdapter {
-    private final ArrayList<ApplicationSearchFragment.InstalledApplication> appList;
-    private final Activity activity;
-    private final boolean isAdapterForRecentSearch;
+public class ApplicationListAdapter extends RecyclerView.Adapter<ApplicationListAdapter.ViewHolder>{
+    private ArrayList<ApplicationSearchFragment.InstalledApplication> appList;
+    private ArrayList<ApplicationSearchFragment.InstalledApplication> recentList;
+    private boolean isAdapterForRecentSearch = false;
+    private final Context context;
 
-    public ApplicationListAdapter(Activity activity, ArrayList<ApplicationSearchFragment.InstalledApplication> appList, boolean isAdapterForRecentSearch) {
+
+    public ApplicationListAdapter(ArrayList<ApplicationSearchFragment.InstalledApplication> appList, Context context) {
         this.appList = appList;
-        this.activity = activity;
-        this.isAdapterForRecentSearch = isAdapterForRecentSearch;
+        this.context = context;
+        recentList = new ArrayList<>();
+    }
+
+    public void setAdapterForRecentSearch(boolean adapterForRecentSearch) {
+        isAdapterForRecentSearch = adapterForRecentSearch;
+    }
+
+    public void setAppList(ArrayList<ApplicationSearchFragment.InstalledApplication> appList) {
+        this.appList = appList;
+    }
+
+    public ArrayList<ApplicationSearchFragment.InstalledApplication> getRecentList() {
+        return recentList;
     }
 
     @Override
-    public int getCount() {
-        return appList.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return appList.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public View getView(int i, View convertView, ViewGroup parent) {
-        convertView = activity.getLayoutInflater().inflate(R.layout.application_list, parent, false);
-
-        ImageView appIconImageView = convertView.findViewById(R.id.app_icon_iv);
-        TextView appNameTextView = convertView.findViewById(R.id.app_name_tv);
-        TextView recentSearchLabel = convertView.findViewById(R.id.recent_search_label);
-
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        ImageView appIconImageView = holder.appIconImageView;
+        TextView appNameTextView = holder.appNameTextView;
+        TextView recentSearchLabel = holder.recentSearchLabel;
         if (isAdapterForRecentSearch)
             recentSearchLabel.setVisibility(View.VISIBLE);
         else
             recentSearchLabel.setVisibility(View.GONE);
 
-        appNameTextView.setText(appList.get(i).getAppName());
-        appIconImageView.setImageDrawable(appList.get(i).getIcon());
+        appNameTextView.setText(appList.get(position).getAppName());
+        appIconImageView.setImageDrawable(appList.get(position).getIcon());
 
-        return convertView;
+        holder.setOnItemClickListener((View view, int i) -> {
+
+            Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(appList.get(i).getPackageName());
+            if (launchIntent != null) {
+                if (!recentList.contains(appList.get(i)))
+                    recentList.add(appList.get(i));
+
+                context.startActivity(launchIntent);
+            } else {
+                Toast.makeText(context, "There is no package available in android", Toast.LENGTH_LONG).show();
+            }
+        });
+
     }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.application_list,parent,false);
+
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public int getItemCount() {
+        return appList.size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        public ImageView appIconImageView;
+        public TextView appNameTextView;
+        public TextView recentSearchLabel;
+        private ItemClickListener itemClickListener;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            appIconImageView = itemView.findViewById(R.id.app_icon_iv);
+            appNameTextView = itemView.findViewById(R.id.app_name_tv);
+            recentSearchLabel = itemView.findViewById(R.id.recent_search_label);
+
+            itemView.setOnClickListener(this);
+        }
+
+        public void setOnItemClickListener(ItemClickListener listener) {
+            this.itemClickListener = listener;
+        }
+
+        @Override
+        public void onClick(View v) {
+            itemClickListener.onClick(v,getAdapterPosition());
+        }
+    }
+
+    public interface ItemClickListener {
+        void onClick(View view, int position);
+    }
+
+
+
 }

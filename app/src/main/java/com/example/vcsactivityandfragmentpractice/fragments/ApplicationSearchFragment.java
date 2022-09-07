@@ -6,15 +6,14 @@ import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import com.example.vcsactivityandfragmentpractice.R;
 import com.example.vcsactivityandfragmentpractice.adapters.ApplicationListAdapter;
@@ -28,9 +27,10 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class ApplicationSearchFragment extends Fragment {
-    private ListView resultListView;
+    private RecyclerView resultRecyclerView;
     private ArrayList<InstalledApplication> allAppList;
-    private ArrayList<InstalledApplication> recentSearchList;
+    private ArrayList<InstalledApplication> recentList;
+    private ApplicationListAdapter adapter;
 
     //Data Model for installed application
     public static class InstalledApplication {
@@ -80,24 +80,8 @@ public class ApplicationSearchFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         //Init array lists
-        recentSearchList = new ArrayList<>();
         allAppList = new ArrayList<>();
-
-        //Create List of all installed application
-        //this method does not work correctly on Android 11 (API 30) and higher
-        PackageManager pm = getContext().getPackageManager();
-
-        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ResolveInfo> pkgAppsList = getContext().getPackageManager().queryIntentActivities( mainIntent, 0);
-        for (int i = 0; i < pkgAppsList.size(); ++i) {
-            InstalledApplication app = new InstalledApplication();
-            app.setAppName(pkgAppsList.get(i).loadLabel(pm).toString());
-            app.setPackageName(pkgAppsList.get(i).activityInfo.packageName);
-            app.setIcon(pkgAppsList.get(i).loadIcon(pm));
-            allAppList.add(app);
-        }
-
+        recentList = new ArrayList<>();
     }
 
     @Override
@@ -107,7 +91,7 @@ public class ApplicationSearchFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_application_search, container, false);
 
         SearchView searchView = rootView.findViewById(R.id.search_view);
-        resultListView = rootView.findViewById(R.id.search_result_list_view);
+        resultRecyclerView = rootView.findViewById(R.id.search_result_recycler_view);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -127,21 +111,40 @@ public class ApplicationSearchFragment extends Fragment {
             }
         });
 
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                if (searchView.getQuery().toString().length() == 0) {
-                    showRecentSearch();
-                    return true;
-                }
-                return false;
+        searchView.setOnCloseListener(() -> {
+            if (searchView.getQuery().toString().length() == 0) {
+                showRecentSearch();
+                return true;
             }
+            return false;
         });
 
         //return
         return rootView;
     }
 
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        //Create List of all installed application
+        //this method does not work correctly on Android 11 (API 30) and higher
+        PackageManager pm = getContext().getPackageManager();
+
+        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> pkgAppsList = getContext().getPackageManager().queryIntentActivities( mainIntent, 0);
+        for (int i = 0; i < pkgAppsList.size(); ++i) {
+            InstalledApplication app = new InstalledApplication();
+            app.setAppName(pkgAppsList.get(i).loadLabel(pm).toString());
+            app.setPackageName(pkgAppsList.get(i).activityInfo.packageName);
+            app.setIcon(pkgAppsList.get(i).loadIcon(pm));
+            allAppList.add(app);
+        }
+
+        adapter = new ApplicationListAdapter(allAppList,getContext());
+        resultRecyclerView.setAdapter(adapter);
+    }
 
     private ArrayList<InstalledApplication> searchForApp(String query) {
 
@@ -165,22 +168,9 @@ public class ApplicationSearchFragment extends Fragment {
         ArrayList<InstalledApplication> resultList = searchForApp(query);
 
         if (resultList.size() != 0) {
-            ApplicationListAdapter adapter = new ApplicationListAdapter(getActivity(), resultList, false);
-            resultListView.setAdapter(adapter);
-            resultListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int i, long id) {
-                    Intent launchIntent = getContext().getPackageManager().getLaunchIntentForPackage(resultList.get(i).getPackageName());
-                    if (launchIntent != null) {
-                        if (!recentSearchList.contains(resultList.get(i)))
-                            recentSearchList.add(resultList.get(i));
-
-                        startActivity(launchIntent);
-                    } else {
-                        Toast.makeText(getContext(), "There is no package available in android", Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
+            adapter.setAppList(resultList);
+            adapter.setAdapterForRecentSearch(false);
+            adapter.notifyDataSetChanged();
         }
         else {
             showRecentSearch();
@@ -188,26 +178,9 @@ public class ApplicationSearchFragment extends Fragment {
     }
 
     public void showRecentSearch() {
-
-        if (recentSearchList.size() != 0) {
-            ApplicationListAdapter adapter = new ApplicationListAdapter(getActivity(), recentSearchList, true);
-            resultListView.setAdapter(adapter);
-            resultListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int i, long id) {
-                    Intent launchIntent = getContext().getPackageManager().getLaunchIntentForPackage(recentSearchList.get(i).getPackageName());
-                    if (launchIntent != null) {
-                        startActivity(launchIntent);
-                    } else {
-                        Toast.makeText(getContext(), "There is no package available in android", Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
-        }
-        else {
-            resultListView.setAdapter(null);
-        }
-
+        recentList = adapter.getRecentList();
+        adapter.setAppList(recentList);
+        adapter.setAdapterForRecentSearch(true);
+        adapter.notifyDataSetChanged();
     }
-
 }
